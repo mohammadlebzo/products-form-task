@@ -1,13 +1,10 @@
 import styled from "styled-components";
-import { get, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import CheckSwitch from "components/CheckSwitch";
 import { useState } from "react";
+import { PRODUCTS_LIST } from "constants/mocks/MockData";
 
 const Button = styled.button`
-  &:first-of-type {
-    margin: 0;
-  }
-  margin-left: 1rem;
   color: black;
   padding: 0.938rem 2rem;
   text-align: center;
@@ -16,10 +13,12 @@ const Button = styled.button`
   font-size: 1rem;
   border: solid 0.188rem black;
   cursor: pointer;
+  border-radius: 10rem;
+
   &:hover,
   &:focus {
     outline: 0;
-    background-color: blue;
+    background-color: green;
   }
 `;
 
@@ -36,12 +35,12 @@ const FormWrapper = styled.div`
   justify-content: center;
   margin: 5rem;
   margin-top: 3rem;
+  margin-bottom: 5rem;
   font-size: 1.5rem;
 
   & form {
     display: flex;
     width: 100%;
-    height: 30rem;
   }
 `;
 
@@ -53,16 +52,28 @@ const RightSideContent = styled.div`
 `;
 
 const LeftSideContent = styled.div`
-  width: 49%;
+  width: 50%;
   float: left;
   margin: 2rem;
+  margin-left: 6rem;
+`;
+
+const InputWithBorder = styled.input`
+  width: 100%;
+  border: 0;
+  height: 1rem;
+  padding: 1rem;
+  font-size: 1.2rem;
+  margin-bottom: 3rem;
+  background-color: #ccc;
+  box-shadow: 0 0.313rem 0.313rem 0 rgba(0, 0, 0, 0.3);
 `;
 
 const InputNoBorder = styled.input`
   outline: 0;
 
   border: 0;
-  border-bottom-width: 1px;
+  border-bottom-width: 0.063rem;
   border-bottom-color: gray;
   border-bottom-style: solid;
 
@@ -70,11 +81,22 @@ const InputNoBorder = styled.input`
   font-size: 1.2rem;
 `;
 
+const InputNoBorderFull = styled(InputNoBorder)`
+  width: 100%;
+  margin-right: 1.25rem;
+  margin-bottom: 0;
+`;
+
+const HerderContentWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  border-radius: 3rem;
+`;
+
 const JustifyCenterWrapper = styled.div`
   display: flex;
   justify-content: center;
   height: 100%;
-  //   align-items: center;
 `;
 
 const LabelBlock = styled.label`
@@ -89,15 +111,14 @@ const ProductInforamtion = styled.div`
 
 const UnderlinedTab = styled.div`
   border: 0;
-  border-bottom-width: 3px;
+  border-bottom-width: 0.188rem;
   border-bottom-color: goldenrod;
   border-bottom-style: solid;
-  border-raduis: 5px;
+  border-raduis: 0.313rem;
   width: 8%;
   clear: both;
 
   & p {
-    // margin-left: 2rem;
     text-align: center;
     font-size: 1.2rem;
   }
@@ -105,7 +126,7 @@ const UnderlinedTab = styled.div`
 
 const PageHeader = styled.div`
   border: 0;
-  border-bottom-width: 1px;
+  border-bottom-width: 0.063rem;
   border-bottom-color: gray;
   border-bottom-style: solid;
   margin-left: 8rem;
@@ -122,22 +143,52 @@ const PageHeader = styled.div`
 
 const SelectElement = styled.select`
   border: 0;
-  border-bottom-width: 1px;
+  border-bottom-width: 0.063rem;
   border-bottom-color: gray;
   border-bottom-style: solid;
   background-color: white;
 
   &.products {
     width: 100%;
-    padding-right: 20px;
+    padding-right: 1.25rem;
     margin-bottom: 5rem;
     height: 3rem;
     font-size: 1.3rem;
   }
 `;
 
+const SavedSpan = styled.button`
+  color: black;
+  padding: 0.938rem 2rem;
+  text-align: center;
+  display: inline-block;
+  font-size: 1rem;
+  border: solid 0.188rem black;
+  border-radius: 10rem;
+`;
+
+const WarningSign = styled.p`
+  border: 0.063rem solid red;
+  border-radius: 1.875rem;
+  color: red;
+  width: 1.25rem;
+  text-align: center;
+`;
+
+const WarningWrapper = styled.div`
+  display: flex;
+  font-size: 1rem;
+  color: red;
+  margin-bottom: 3rem;
+`;
+
 function Form() {
+  const [selectedProductInfo, setSelectedProductInfo] = useState({});
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [didSubmit, setDidSubmit] = useState(false);
   const {
+    formState: { isDirty },
+    reset,
     register,
     handleSubmit,
     watch,
@@ -148,8 +199,9 @@ function Form() {
     defaultValues: {
       title: "",
       header: "",
-      amount: "",
+      amount: 0,
       duration: 0,
+      products: "",
       autoRenew: false,
       selfOffer: false,
       giftOffer: false,
@@ -158,44 +210,108 @@ function Form() {
       trailQ: false,
       freeTrail: false,
       reducedTrail: false,
+      firstBundleItemName: "",
+      secondBundleItemName: "",
+      firstBundleItemSplit: 0,
+      secondBundleItemSplit: 0,
     },
   });
-  const [isDisabled, setIsDisabled] = useState(false);
-  const onSubmit = (data) => console.log(data);
 
-  const selfOfferConnectionHandler = (e) => {
-    const autoRenew = watch("autoRenew");
-    const selfOffer = watch("selfOffer");
+  const handlers = {
+    onSubmit: (data) => {
+      console.log(data);
+      reset(data);
+      setDidSubmit(true);
+    },
+    selfOfferConnection: (e) => {
+      const autoRenew = getValues("autoRenew");
+      const selfOffer = getValues("selfOffer");
+      const giftOffer = getValues("giftOffer");
 
-    if (!autoRenew && !selfOffer) {
-      setValue("autoRenew", true);
-    } else if (autoRenew && selfOffer) {
-      setValue("autoRenew", false);
-    }
+      if (!autoRenew && !selfOffer) {
+        setValue("autoRenew", true);
+      }
+      if (autoRenew && selfOffer) {
+        setValue("autoRenew", false);
+      }
+      if (giftOffer) {
+        setValue("autoRenew", false);
+      }
+    },
+    disableAutoRenew: (e) => {
+      const giftOffer = getValues("giftOffer");
+
+      if (!giftOffer) {
+        setValue("autoRenew", false);
+        setIsDisabled(true);
+      } else {
+        setIsDisabled(false);
+      }
+    },
+    productInfo: (e) => {
+      setValue("products", e.target.value);
+      PRODUCTS_LIST.forEach((product) => {
+        if (product.id === +e.target.value.split(":")[0]) {
+          setSelectedProductInfo(product);
+          setValue("amount", product.price);
+          setValue("duration", product.duration);
+          if (product.bundleItems) {
+            setValue("firstBundleItemName", product.bundleItems[0].name);
+            setValue("firstBundleItemSplit", product.bundleItems[0].price);
+            setValue("secondBundleItemName", product.bundleItems[1].name);
+            setValue("secondBundleItemSplit", product.bundleItems[1].price);
+          }
+        }
+      });
+    },
+    reducedTrail: () => {
+      setValue("trailQ", true);
+      setValue("reducedTrail", !getValues("reducedTrail"));
+      if (watch("freeTrail")) {
+        setValue("freeTrail", false);
+      }
+    },
+    freeTrail: () => {
+      setValue("trailQ", true);
+      setValue("freeTrail", !getValues("freeTrail"));
+      if (watch("reducedTrail")) {
+        setValue("reducedTrail", false);
+      }
+    },
+    trailQ: () => {
+      setValue("trailQ", !getValues("trailQ"));
+      if (watch("reducedTrail")) {
+        setValue("reducedTrail", false);
+      }
+      if (watch("freeTrail")) {
+        setValue("freeTrail", false);
+      }
+    },
   };
 
-  const disableAutoRenewHandler = (e) => {
-    const giftOffer = watch("giftOffer");
+  // console.log(selectedProductInfo, watch("products"));
+  // console.log(+watch("firstBundleItemSplit") + +watch("secondBundleItemSplit"));
 
-    if (!giftOffer) {
-      setValue("autoRenew", false);
-      setIsDisabled(true);
-    } else {
-      setIsDisabled(false);
-    }
-  };
+  if (didSubmit && isDirty) {
+    setDidSubmit(false);
+  }
 
   return (
     <>
       <PageHeader>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <HerderContentWrapper>
           <h1>
             {watch("title").length > 0 ? watch("title") : "Untitled Offer"}
           </h1>
           <ButtonsWrapper>
-            <Button>Save Draft</Button>
+            {didSubmit && <SavedSpan disabled={true}>Draft Saved</SavedSpan>}
+            {!didSubmit && (
+              <Button onClick={handleSubmit(handlers.onSubmit)}>
+                Save Draft
+              </Button>
+            )}
           </ButtonsWrapper>
-        </div>
+        </HerderContentWrapper>
 
         <UnderlinedTab>
           <p>Offer</p>
@@ -203,65 +319,162 @@ function Form() {
       </PageHeader>
 
       <FormWrapper>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form>
           <LeftSideContent>
             <JustifyCenterWrapper>
               <div>
                 <div>
-                  <InputNoBorder
+                  <InputNoBorderFull
                     id="title"
-                    {...register("title", { required: true })}
+                    {...register("title", {
+                      required: "This field is required",
+                    })}
                     type="text"
                     placeholder="Offer Title"
-                    style={{ width: "100%", marginRight: "20px" }}
                   />
                 </div>
 
+                <WarningWrapper>
+                  <p>{errors?.title?.message}</p>
+                </WarningWrapper>
+
                 <div>
-                  {/* <LabelBlock htmlFor="header">Offer Header</LabelBlock> */}
-                  <InputNoBorder
+                  <InputNoBorderFull
                     id="header"
-                    {...register("header", { required: true })}
+                    {...register("header", {
+                      required: "This field is required",
+                    })}
                     type="text"
                     placeholder="Offer Header"
-                    style={{ width: "100%", marginRight: "20px" }}
                   />
                 </div>
 
+                <WarningWrapper>
+                  <p>{errors?.header?.message}</p>
+                </WarningWrapper>
+
                 <div>
-                  {/* <LabelBlock htmlFor="products">Products</LabelBlock> */}
                   <SelectElement
-                    name="products"
+                    {...register("products")}
                     id="products"
                     className="products"
+                    onChange={handlers.productInfo}
                   >
                     <option value="" selected disabled hidden>
                       Products
                     </option>
-                    <option value="op0">option-0</option>
-                    <option value="op1">option-1</option>
-                    <option value="op2">option-2</option>
-                    <option value="op3">option-3</option>
-                    <option value="op4">option-4</option>
-                    <option value="op5">option-5</option>
-                    <option value="op6">option-6</option>
-                    <option value="op7">option-7</option>
-                    <option value="op8">option-8</option>
-                    <option value="op9">option-9</option>
+
+                    {PRODUCTS_LIST.map((product) => {
+                      return (
+                        <option
+                          key={product.id}
+                          value={`${product.id}:${product.type}`}
+                        >
+                          {product.name}
+                        </option>
+                      );
+                    })}
                   </SelectElement>
                 </div>
+
+                {watch("products").split(":")[1] === "bundle" && (
+                  <div>
+                    <p>Bundle includes the following products</p>
+                    <InputWithBorder
+                      {...register("firstBundleItemName")}
+                      type="text"
+                      placeholder="First Item"
+                      style={{ marginTop: "2rem" }}
+                    />
+                    <LabelBlock
+                      htmlFor="firstSplit"
+                      style={{ fontSize: "1rem" }}
+                    >
+                      Split
+                    </LabelBlock>
+                    <InputNoBorderFull
+                      {...register("firstBundleItemSplit")}
+                      id="firstSplit"
+                      type="number"
+                      placeholder="0"
+                    />
+                    <WarningWrapper>
+                      {selectedProductInfo.price !==
+                        +watch("firstBundleItemSplit") +
+                          +watch("secondBundleItemSplit") && (
+                        <>
+                          <div>
+                            <WarningSign>!</WarningSign>
+                          </div>
+
+                          <p>
+                            The products prices in this bundle does not equal
+                            the bundle's overall price. Please make sure that
+                            the total of the products prices equals the bunle
+                            price.
+                          </p>
+                        </>
+                      )}
+                    </WarningWrapper>
+
+                    <br />
+
+                    <InputWithBorder
+                      {...register("secondBundleItemName")}
+                      type="text"
+                      placeholder="Second Item"
+                    />
+
+                    <LabelBlock
+                      htmlFor="secondSplit"
+                      style={{ fontSize: "1rem" }}
+                    >
+                      Split
+                    </LabelBlock>
+                    <InputNoBorderFull
+                      {...register("secondBundleItemSplit")}
+                      id="secondSplit"
+                      type="number"
+                      placeholder="0"
+                    />
+
+                    <WarningWrapper>
+                      {selectedProductInfo.price !==
+                        +watch("firstBundleItemSplit") +
+                          +watch("secondBundleItemSplit") && (
+                        <>
+                          <div>
+                            <WarningSign>!</WarningSign>
+                          </div>
+
+                          <p>
+                            The products prices in this bundle does not equal
+                            the bundle's overall price. Please make sure that
+                            the total of the products prices equals the bunle
+                            price.
+                          </p>
+                        </>
+                      )}
+                    </WarningWrapper>
+                  </div>
+                )}
 
                 <ProductInforamtion>
                   <InputNoBorder
                     {...register("amount")}
                     type="number"
                     placeholder="Amount"
+                    disabled={watch("reducedTrail") ? true : false}
                   />
-                  <div style={{ marginRight: "1.2rem", marginLeft: "1.2rem" }}>
+                  <div style={{ marginRight: "1rem", marginLeft: "1rem" }}>
                     <LabelBlock htmlFor="term" style={{ color: "#aaa" }}>
                       Term
                     </LabelBlock>
-                    <SelectElement name="term" id="term">
+                    <SelectElement
+                      name="term"
+                      id="term"
+                      style={{ width: "10rem", height: "1.6rem" }}
+                    >
                       <option value="day">Day</option>
                       <option value="week">Week</option>
                       <option value="month">Month</option>
@@ -281,104 +494,89 @@ function Form() {
                 </ProductInforamtion>
 
                 <div>
-                  <LabelBlock style={{ fontSize: "1.05rem" }}>
-                    Auto-Renewal
-                    <br />
-                    <CheckSwitch
-                      registeration={register("autoRenew")}
-                      callbackFun={() => console.log()}
-                      isDisabled={isDisabled}
-                    />
-                  </LabelBlock>
+                  <CheckSwitch
+                    id={"autoRenew"}
+                    labelContent={"Auto-Renewal"}
+                    labelStyle={{ fontSize: "1.05rem" }}
+                    registeration={register("autoRenew")}
+                    callbackFun={() => console.log()}
+                    isDisabled={isDisabled}
+                  />
                 </div>
               </div>
             </JustifyCenterWrapper>
           </LeftSideContent>
 
           <RightSideContent>
-            <JustifyCenterWrapper>
-              <div>
-                <label htmlFor="">Offer Type</label>
-                <div
-                  style={{
-                    marginLeft: "3rem",
-                    marginTop: "2rem",
-                    marginBottom: "2rem",
-                  }}
-                >
-                  <label>
-                    Self Offer
-                    <br />
-                    <CheckSwitch
-                      registeration={register("selfOffer")}
-                      callbackFun={selfOfferConnectionHandler}
-                    />
-                  </label>
-                  <br />
-                  <label>
-                    Gift Offer
-                    <br />
-                    <CheckSwitch
-                      registeration={register("giftOffer")}
-                      callbackFun={disableAutoRenewHandler}
-                    />
-                  </label>
-                </div>
+            <div style={{ marginLeft: "5rem" }}>
+              <label htmlFor="">Offer Type:</label>
+              <div
+                style={{
+                  marginLeft: "3rem",
+                  marginTop: "2rem",
+                  marginBottom: "2rem",
+                }}
+              >
+                <CheckSwitch
+                  id={"selfOffer"}
+                  labelContent={"Self Offer"}
+                  registeration={register("selfOffer")}
+                  callbackFun={handlers.selfOfferConnection}
+                />
 
-                <div style={{ marginBottom: "2rem" }}>
-                  <label>
-                    Is this offer promoted?
-                    <br />
-                    <CheckSwitch
-                      registeration={register("promotedQ")}
-                      callbackFun={() => console.log()}
-                    />
-                  </label>
-                </div>
+                <br />
 
-                <div style={{ marginBottom: "2rem" }}>
-                  <label>
-                    Is this offer an iCare default offer?
-                    <br />
-                    <CheckSwitch
-                      registeration={register("iCareQ")}
-                      callbackFun={() => console.log()}
-                    />
-                  </label>
-                </div>
-
-                <div style={{ marginBottom: "2rem" }}>
-                  <label htmlFor="">
-                    Trail Offer?
-                    <br />
-                    <CheckSwitch
-                      registeration={register("trailQ")}
-                      callbackFun={() => console.log()}
-                    />
-                  </label>
-                </div>
-
-                <div style={{ marginBottom: "2rem", marginLeft: "3rem" }}>
-                  <label>
-                    Free Trail
-                    <br />
-                    <CheckSwitch
-                      registeration={register("freeTrail")}
-                      callbackFun={() => console.log()}
-                    />
-                  </label>
-                  <br />
-                  <label>
-                    Reduced Price Trail
-                    <br />
-                    <CheckSwitch
-                      registeration={register("reducedTrail")}
-                      callbackFun={() => console.log()}
-                    />
-                  </label>
-                </div>
+                <CheckSwitch
+                  id={"giftOffer"}
+                  labelContent={"Gift Offer"}
+                  labelStyle={{ marginTop: "2rem" }}
+                  registeration={register("giftOffer")}
+                  callbackFun={handlers.disableAutoRenew}
+                />
               </div>
-            </JustifyCenterWrapper>
+
+              <div style={{ marginBottom: "2rem" }}>
+                <CheckSwitch
+                  id={"promotedQ"}
+                  labelContent={"Is this offer promoted?"}
+                  registeration={register("promotedQ")}
+                />
+              </div>
+
+              <div style={{ marginBottom: "2rem" }}>
+                <CheckSwitch
+                  id={"iCareQ"}
+                  labelContent={"Is this offer an iCare default offer?"}
+                  registeration={register("iCareQ")}
+                />
+              </div>
+
+              <div style={{ marginBottom: "2rem" }}>
+                <CheckSwitch
+                  id={"trailQ"}
+                  labelContent={"Trail Offer?"}
+                  registeration={register("trailQ")}
+                  callbackFun={handlers.trailQ}
+                />
+              </div>
+
+              <div style={{ marginBottom: "2rem", marginLeft: "3rem" }}>
+                <CheckSwitch
+                  id={"freeTrail"}
+                  labelContent={"Free Trail"}
+                  registeration={register("freeTrail")}
+                  callbackFun={handlers.freeTrail}
+                />
+                <br />
+                <CheckSwitch
+                  id={"reducedTrail"}
+                  labelContent={"Reduced Price Trail"}
+                  labelStyle={{ marginTop: "2rem" }}
+                  registeration={register("reducedTrail")}
+                  callbackFun={handlers.reducedTrail}
+                />
+              </div>
+            </div>
           </RightSideContent>
         </form>
       </FormWrapper>

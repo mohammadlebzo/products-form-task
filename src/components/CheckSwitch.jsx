@@ -1,6 +1,10 @@
 import styled from "styled-components";
 import PropTypes from "prop-types";
 
+const LabelBlock = styled.label`
+  display: block;
+`;
+
 const Switch = styled.label`
   position: relative;
   display: inline-block;
@@ -47,17 +51,28 @@ const Switch = styled.label`
   }
 `;
 
-function CheckSwitch({ registeration, callbackFun, isDisabled }) {
+function CheckSwitch({
+  labelContent,
+  labelStyle,
+  registeration,
+  callbackFun,
+  isDisabled,
+  id,
+}) {
   return (
-    <Switch>
-      <input
-        {...registeration}
-        type="checkbox"
-        onChange={callbackFun}
-        disabled={isDisabled}
-      />
-      <div className="slider round"></div>
-    </Switch>
+    <>
+      <LabelBlock htmlFor={id} style={labelStyle}>{labelContent}</LabelBlock>
+      <Switch>
+        <input
+          id={id}
+          {...registeration}
+          type="checkbox"
+          onChange={callbackFun}
+          disabled={isDisabled}
+        />
+        <div className="slider round"></div>
+      </Switch>
+    </>
   );
 }
 
@@ -65,6 +80,9 @@ CheckSwitch.propTypes = {
   registeration: PropTypes.object,
   callbackFun: PropTypes.func,
   isDisabled: PropTypes.bool,
+  id: PropTypes.string,
+  labelContent: PropTypes.string,
+  labelStyle: PropTypes.object,
 };
 
 export default CheckSwitch;
