@@ -3,9 +3,10 @@ import { useForm } from "react-hook-form";
 import CheckSwitch from "components/CheckSwitch";
 import { useState } from "react";
 import { PRODUCTS_LIST } from "constants/mocks/MockData";
+import { FONT, BACKGROUND, BORDER, BOX } from "constants/styles/StyleParams";
 
 const Button = styled.button`
-  color: black;
+  color: ${FONT.color.black};
   padding: 0.938rem 2rem;
   text-align: center;
   text-decoration: none;
@@ -18,7 +19,9 @@ const Button = styled.button`
   &:hover,
   &:focus {
     outline: 0;
-    background-color: green;
+    background-color: ${BACKGROUND.color.green};
+    color: ${FONT.color.white};
+    font-weight: bold;
   }
 `;
 
@@ -37,6 +40,7 @@ const FormWrapper = styled.div`
   margin-top: 3rem;
   margin-bottom: 5rem;
   font-size: 1.5rem;
+  font-family: ${FONT.family.main};
 
   & form {
     display: flex;
@@ -44,18 +48,10 @@ const FormWrapper = styled.div`
   }
 `;
 
-const RightSideContent = styled.div`
-  width: 49%;
-  float: right;
-  margin: 2rem;
-  font-size: 1.2rem;
-`;
-
-const LeftSideContent = styled.div`
-  width: 50%;
-  float: left;
-  margin: 2rem;
-  margin-left: 6rem;
+const HerderContentWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  border-radius: 3rem;
 `;
 
 const InputWithBorder = styled.input`
@@ -65,7 +61,7 @@ const InputWithBorder = styled.input`
   padding: 1rem;
   font-size: 1.2rem;
   margin-bottom: 3rem;
-  background-color: #ccc;
+  background-color: ${BACKGROUND.color.lightGray};
   box-shadow: 0 0.313rem 0.313rem 0 rgba(0, 0, 0, 0.3);
 `;
 
@@ -74,11 +70,17 @@ const InputNoBorder = styled.input`
 
   border: 0;
   border-bottom-width: 0.063rem;
-  border-bottom-color: gray;
+  border-bottom-color: ${BORDER.color.gray};
   border-bottom-style: solid;
 
   margin-bottom: 5rem;
   font-size: 1.2rem;
+
+  &:focus {
+    box-shadow: ${BOX.focusShadow};
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+  }
 `;
 
 const InputNoBorderFull = styled(InputNoBorder)`
@@ -87,16 +89,17 @@ const InputNoBorderFull = styled(InputNoBorder)`
   margin-bottom: 0;
 `;
 
-const HerderContentWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  border-radius: 3rem;
-`;
-
 const JustifyCenterWrapper = styled.div`
   display: flex;
   justify-content: center;
   height: 100%;
+`;
+
+const LeftSideContent = styled.div`
+  width: 50%;
+  float: left;
+  margin: 2rem;
+  margin-left: 6rem;
 `;
 
 const LabelBlock = styled.label`
@@ -107,12 +110,85 @@ const ProductInforamtion = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 1rem;
+
+  & select {
+    font-size: 1.2rem;
+  }
+`;
+
+const PageHeader = styled.div`
+  border: 0;
+  border-bottom-width: 0.063rem;
+  border-bottom-color: ${BORDER.color.gray};
+  border-bottom-style: solid;
+  margin-left: 8rem;
+  margin-right: 8rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  font-family: ${FONT.family.main};
+
+  & h1 {
+    font-size: 2rem;
+    margin-left: 1.5rem;
+    margin-bottom: 3rem;
+  }
+`;
+
+const RightSideContent = styled.div`
+  width: 49%;
+  float: right;
+  margin: 2rem;
+  font-size: 1.2rem;
+`;
+
+const ReaderOnlyLabel = styled.label`
+    border: 0;
+    clip: rect(1px 1px 1px 1px);
+    clip; rect(1px, 1px, 1px, 1px);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+`;
+
+const SelectElement = styled.select`
+  border: 0;
+  border-bottom-width: 0.063rem;
+  border-bottom-color: ${BORDER.color.gray};
+  border-bottom-style: solid;
+  background-color: ${BACKGROUND.color.white};
+
+  &.products {
+    width: 100%;
+    padding-right: 1.25rem;
+    margin-bottom: 5rem;
+    height: 3rem;
+    font-size: 1.3rem;
+  }
+
+  &:focus {
+    outline: 0;
+    box-shadow: ${BOX.focusShadow};
+    border-radius: 0.5rem;
+  }
+`;
+
+const SavedSpan = styled.button`
+  color: ${FONT.color.black};
+  padding: 0.938rem 2rem;
+  text-align: center;
+  display: inline-block;
+  font-size: 1rem;
+  border: solid 0.188rem black;
+  border-radius: 10rem;
 `;
 
 const UnderlinedTab = styled.div`
   border: 0;
   border-bottom-width: 0.188rem;
-  border-bottom-color: goldenrod;
+  border-bottom-color: ${BORDER.color.goldenrod};
   border-bottom-style: solid;
   border-raduis: 0.313rem;
   width: 8%;
@@ -124,53 +200,10 @@ const UnderlinedTab = styled.div`
   }
 `;
 
-const PageHeader = styled.div`
-  border: 0;
-  border-bottom-width: 0.063rem;
-  border-bottom-color: gray;
-  border-bottom-style: solid;
-  margin-left: 8rem;
-  margin-right: 8rem;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-
-  & h1 {
-    font-size: 2rem;
-    margin-left: 1.5rem;
-    margin-bottom: 3rem;
-  }
-`;
-
-const SelectElement = styled.select`
-  border: 0;
-  border-bottom-width: 0.063rem;
-  border-bottom-color: gray;
-  border-bottom-style: solid;
-  background-color: white;
-
-  &.products {
-    width: 100%;
-    padding-right: 1.25rem;
-    margin-bottom: 5rem;
-    height: 3rem;
-    font-size: 1.3rem;
-  }
-`;
-
-const SavedSpan = styled.button`
-  color: black;
-  padding: 0.938rem 2rem;
-  text-align: center;
-  display: inline-block;
-  font-size: 1rem;
-  border: solid 0.188rem black;
-  border-radius: 10rem;
-`;
-
 const WarningSign = styled.p`
   border: 0.063rem solid red;
   border-radius: 1.875rem;
-  color: red;
+  color: ${FONT.color.red};
   width: 1.25rem;
   text-align: center;
 `;
@@ -178,7 +211,7 @@ const WarningSign = styled.p`
 const WarningWrapper = styled.div`
   display: flex;
   font-size: 1rem;
-  color: red;
+  color: ${FONT.color.red};
   margin-bottom: 3rem;
 `;
 
@@ -202,6 +235,7 @@ function Form() {
       amount: 0,
       duration: 0,
       products: "",
+      term: "day",
       autoRenew: false,
       selfOffer: false,
       giftOffer: false,
@@ -224,14 +258,16 @@ function Form() {
       setDidSubmit(true);
     },
     selfOfferConnection: (e) => {
+      setValue("selfOffer", !getValues("selfOffer"));
+
       const autoRenew = getValues("autoRenew");
       const selfOffer = getValues("selfOffer");
       const giftOffer = getValues("giftOffer");
 
-      if (!autoRenew && !selfOffer) {
+      if (!autoRenew && selfOffer) {
         setValue("autoRenew", true);
       }
-      if (autoRenew && selfOffer) {
+      if (autoRenew && !selfOffer) {
         setValue("autoRenew", false);
       }
       if (giftOffer) {
@@ -265,6 +301,9 @@ function Form() {
       });
     },
     reducedTrail: () => {
+      if (!getValues("giftOffer")) {
+        setValue("autoRenew", true);
+      }
       setValue("trailQ", true);
       setValue("reducedTrail", !getValues("reducedTrail"));
       if (watch("freeTrail")) {
@@ -272,6 +311,9 @@ function Form() {
       }
     },
     freeTrail: () => {
+      if (!getValues("giftOffer")) {
+        setValue("autoRenew", true);
+      }
       setValue("trailQ", true);
       setValue("freeTrail", !getValues("freeTrail"));
       if (watch("reducedTrail")) {
@@ -280,17 +322,28 @@ function Form() {
     },
     trailQ: () => {
       setValue("trailQ", !getValues("trailQ"));
+
+      const trailQ = getValues("trailQ");
+      const autoRenew = getValues("autoRenew");
+      const giftOffer = getValues("giftOffer");
+
       if (watch("reducedTrail")) {
         setValue("reducedTrail", false);
       }
       if (watch("freeTrail")) {
         setValue("freeTrail", false);
       }
+      if (!autoRenew && trailQ) {
+        setValue("autoRenew", true);
+      }
+      if (autoRenew && !trailQ) {
+        setValue("autoRenew", false);
+      }
+      if (giftOffer) {
+        setValue("autoRenew", false);
+      }
     },
   };
-
-  // console.log(selectedProductInfo, watch("products"));
-  // console.log(+watch("firstBundleItemSplit") + +watch("secondBundleItemSplit"));
 
   if (didSubmit && isDirty) {
     setDidSubmit(false);
@@ -324,6 +377,7 @@ function Form() {
             <JustifyCenterWrapper>
               <div>
                 <div>
+                  <ReaderOnlyLabel htmlFor="title"></ReaderOnlyLabel>
                   <InputNoBorderFull
                     id="title"
                     {...register("title", {
@@ -339,6 +393,7 @@ function Form() {
                 </WarningWrapper>
 
                 <div>
+                  <ReaderOnlyLabel htmlFor="header"></ReaderOnlyLabel>
                   <InputNoBorderFull
                     id="header"
                     {...register("header", {
@@ -354,6 +409,7 @@ function Form() {
                 </WarningWrapper>
 
                 <div>
+                  <ReaderOnlyLabel htmlFor="products"></ReaderOnlyLabel>
                   <SelectElement
                     {...register("products")}
                     id="products"
@@ -460,29 +516,42 @@ function Form() {
                 )}
 
                 <ProductInforamtion>
+                  <ReaderOnlyLabel htmlFor="amount"></ReaderOnlyLabel>
                   <InputNoBorder
+                    id="amount"
                     {...register("amount")}
                     type="number"
                     placeholder="Amount"
                     disabled={watch("reducedTrail") ? true : false}
                   />
                   <div style={{ marginRight: "1rem", marginLeft: "1rem" }}>
-                    <LabelBlock htmlFor="term" style={{ color: "#aaa" }}>
+                    <LabelBlock
+                      htmlFor="term"
+                      style={{ color: `${FONT.color.gray}` }}
+                    >
                       Term
                     </LabelBlock>
                     <SelectElement
-                      name="term"
+                      {...register("term")}
                       id="term"
                       style={{ width: "10rem", height: "1.6rem" }}
                     >
-                      <option value="day">Day</option>
+                      <option value="" selected disabled hidden>
+                        Day
+                      </option>
+                      <option value="day" selected>
+                        Day
+                      </option>
                       <option value="week">Week</option>
                       <option value="month">Month</option>
                       <option value="year">year</option>
                     </SelectElement>
                   </div>
                   <div>
-                    <LabelBlock htmlFor="duration" style={{ color: "#aaa" }}>
+                    <LabelBlock
+                      htmlFor="duration"
+                      style={{ color: `${FONT.color.gray}` }}
+                    >
                       Duration
                     </LabelBlock>
                     <InputNoBorder

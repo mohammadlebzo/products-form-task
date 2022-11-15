@@ -22,10 +22,6 @@ beforeEach(() => {
 });
 
 describe("Form component", () => {
-  // test("test", () => {
-  //   expect(getByRole("")).toBeInTheDocument();
-  // });
-
   test("renders the user input as the heading, when text is entered into the title input field", () => {
     const heading = getByRole("heading");
     expect(heading).toHaveTextContent("Untitled Offer");
@@ -51,14 +47,24 @@ describe("Form component", () => {
 
     expect(draftSavedButton).toBeInTheDocument();
 
-    userEvent.type(elements.titleInputField(), "{selectall}{del}l");
+    // userEvent.type(elements.titleInputField(), "hello,");
+    // userEvent.type(elements.headerInputField(), "World!");
+    // userEvent.selectOptions(
+    //   elements.productSelectField(),
+    //   getByRole("option", { name: "Bundle Product #3" })
+    // );
 
-    expect(saveDraftButton).toBeInTheDocument();
+    // userEvent.click(saveDraftButton);
+
+    // expect(draftSavedButton).toBeInTheDocument();
   });
 
   test("checks 'Auto-renewal' checkbox, when 'Self Offer' is checked, then unchecks the other when it is unchecked", () => {
     userEvent.click(elements.selfOfferCheckbox());
     expect(elements.autoRenewCheckbox()).toBeChecked();
+
+    userEvent.click(elements.selfOfferCheckbox());
+    expect(elements.autoRenewCheckbox()).not.toBeChecked();
   });
 
   test("unchecks 'Auto-renewal' when checking 'Gift Offer'", () => {
@@ -112,5 +118,21 @@ describe("Form component", () => {
 
     userEvent.click(elements.trailQCheckbox());
     expect(elements.reducedTrailCheckbox()).not.toBeChecked();
+  });
+
+  test("checks 'Trail Offer?' which checks 'Auto-Renewal' ", () => {
+    userEvent.click(elements.trailQCheckbox());
+    expect(elements.autoRenewCheckbox()).toBeChecked();
+
+    userEvent.click(elements.giftOfferCheckbox());
+    expect(elements.autoRenewCheckbox()).not.toBeChecked();
+  });
+
+  test("keeps 'Auto-Renewal' unchecked if 'Gift Offer' is checked even when checking 'Trail Offer?' ", () => {
+    userEvent.click(elements.giftOfferCheckbox());
+    expect(elements.autoRenewCheckbox()).not.toBeChecked();
+
+    userEvent.click(elements.trailQCheckbox());
+    expect(elements.autoRenewCheckbox()).not.toBeChecked();
   });
 });
