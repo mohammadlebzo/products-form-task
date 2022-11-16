@@ -2,10 +2,6 @@ import styled from "styled-components";
 import PropTypes from "prop-types";
 import { BACKGROUND, BOX } from "constants/styles/StyleParams";
 
-const LabelBlock = styled.label`
-  display: block;
-`;
-
 const Switch = styled.label`
   position: relative;
   display: inline-block;
@@ -52,29 +48,32 @@ const Switch = styled.label`
   }
 `;
 
+const SwitchWrapper = styled.div`
+  margin-top: 2rem;
+`;
+
 function CheckSwitch({
   id,
   labelContent,
-  labelStyle,
   registeration,
   callbackFun,
   isDisabled,
 }) {
   return (
     <>
-      <LabelBlock htmlFor={id} style={labelStyle}>
-        {labelContent}
-      </LabelBlock>
-      <Switch>
-        <input
-          id={id}
-          {...registeration}
-          type="checkbox"
-          onChange={callbackFun}
-          disabled={isDisabled}
-        />
-        <div className="slider round"></div>
-      </Switch>
+      <SwitchWrapper className="switchWrapper">
+        <label htmlFor={id}>{labelContent}</label>
+        <Switch>
+          <input
+            id={id}
+            {...registeration}
+            type="checkbox"
+            onChange={callbackFun}
+            disabled={isDisabled}
+          />
+          <div className="slider round"></div>
+        </Switch>
+      </SwitchWrapper>
     </>
   );
 }
@@ -82,7 +81,6 @@ function CheckSwitch({
 CheckSwitch.propTypes = {
   id: PropTypes.string,
   labelContent: PropTypes.string,
-  labelStyle: PropTypes.object,
   registeration: PropTypes.object,
   callbackFun: PropTypes.func,
   isDisabled: PropTypes.bool,

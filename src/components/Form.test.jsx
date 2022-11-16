@@ -17,12 +17,11 @@ const elements = {
   reducedTrailCheckbox: () => getByLabelText("Reduced Price Trail"),
 };
 
-beforeEach(() => {
-  render(<Form />);
-});
+const utils = <Form />;
 
 describe("Form component", () => {
   test("renders the user input as the heading, when text is entered into the title input field", () => {
+    render(utils);
     const heading = getByRole("heading");
     expect(heading).toHaveTextContent("Untitled Offer");
 
@@ -32,6 +31,7 @@ describe("Form component", () => {
   });
 
   test("logs all data when submitting", () => {
+    render(utils);
     const saveDraftButton = getByRole("button");
 
     userEvent.type(elements.titleInputField(), "hello,");
@@ -60,6 +60,7 @@ describe("Form component", () => {
   });
 
   test("checks 'Auto-renewal' checkbox, when 'Self Offer' is checked, then unchecks the other when it is unchecked", () => {
+    render(utils);
     userEvent.click(elements.selfOfferCheckbox());
     expect(elements.autoRenewCheckbox()).toBeChecked();
 
@@ -68,12 +69,14 @@ describe("Form component", () => {
   });
 
   test("unchecks 'Auto-renewal' when checking 'Gift Offer'", () => {
+    render(utils);
     userEvent.click(elements.autoRenewCheckbox());
     userEvent.click(elements.giftOfferCheckbox());
     expect(elements.autoRenewCheckbox()).not.toBeChecked();
   });
 
   test("unchecks 'Auto-renewal' when 'Self Offer' is checked and then checking 'Gift Offer'", () => {
+    render(utils);
     userEvent.click(elements.giftOfferCheckbox());
     userEvent.click(elements.selfOfferCheckbox());
     expect(elements.autoRenewCheckbox()).not.toBeChecked();
@@ -88,6 +91,7 @@ describe("Form component", () => {
   });
 
   test("checks 'Trail Offer?' and unchecks 'Reduced Price Trail', when checking 'Free Trail'", () => {
+    render(utils);
     userEvent.click(elements.reducedTrailCheckbox());
     expect(elements.reducedTrailCheckbox()).toBeChecked();
 
@@ -97,6 +101,7 @@ describe("Form component", () => {
   });
 
   test("checks 'Trail Offer?' and unchecks 'Free Trail', when checking 'Reduced Price Trail'", () => {
+    render(utils);
     userEvent.click(elements.freeTrailCheckbox());
     expect(elements.freeTrailCheckbox()).toBeChecked();
 
@@ -106,6 +111,7 @@ describe("Form component", () => {
   });
 
   test("checks 'Trail Offer?' and unchecks any of it's items if it gets unchecked", () => {
+    render(utils);
     userEvent.click(elements.freeTrailCheckbox());
     expect(elements.freeTrailCheckbox()).toBeChecked();
     expect(elements.trailQCheckbox()).toBeChecked();
@@ -121,6 +127,7 @@ describe("Form component", () => {
   });
 
   test("checks 'Trail Offer?' which checks 'Auto-Renewal' ", () => {
+    render(utils);
     userEvent.click(elements.trailQCheckbox());
     expect(elements.autoRenewCheckbox()).toBeChecked();
 
@@ -129,6 +136,7 @@ describe("Form component", () => {
   });
 
   test("keeps 'Auto-Renewal' unchecked if 'Gift Offer' is checked even when checking 'Trail Offer?' ", () => {
+    render(utils);
     userEvent.click(elements.giftOfferCheckbox());
     expect(elements.autoRenewCheckbox()).not.toBeChecked();
 

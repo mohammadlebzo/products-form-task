@@ -2,8 +2,16 @@ import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import CheckSwitch from "components/CheckSwitch";
 import { useState } from "react";
-import { PRODUCTS_LIST } from "constants/mocks/MockData";
+import {
+  PRODUCTS_LIST,
+  SWITCHES_IDS,
+  SWITCHES_LABELS,
+} from "constants/mocks/MockData";
 import { FONT, BACKGROUND, BORDER, BOX } from "constants/styles/StyleParams";
+
+const AutoRenewWrapper = styled.div`
+  font-size: 1.05rem;
+`;
 
 const Button = styled.button`
   color: ${FONT.color.black};
@@ -45,6 +53,10 @@ const FormWrapper = styled.div`
   & form {
     display: flex;
     width: 100%;
+
+    & label {
+      display: block;
+    }
   }
 `;
 
@@ -102,10 +114,6 @@ const LeftSideContent = styled.div`
   margin-left: 6rem;
 `;
 
-const LabelBlock = styled.label`
-  display: block;
-`;
-
 const ProductInforamtion = styled.div`
   display: flex;
   justify-content: space-between;
@@ -153,6 +161,20 @@ const ReaderOnlyLabel = styled.label`
     width: 1px;
 `;
 
+const SwitchsWrapper = styled.div`
+  & .switchWrapper:nth-child(2),
+  .switchWrapper:nth-child(3) {
+    margin-left: 3rem;
+  }
+
+  & .switchWrapper:nth-child(7),
+  .switchWrapper:nth-child(8) {
+    margin-left: 3rem;
+  }
+
+  margin-left: 5rem;
+`;
+
 const SelectElement = styled.select`
   border: 0;
   border-bottom-width: 0.063rem;
@@ -166,6 +188,11 @@ const SelectElement = styled.select`
     margin-bottom: 5rem;
     height: 3rem;
     font-size: 1.3rem;
+  }
+
+  &.term {
+    width: 10rem;
+    height: 1.6rem;
   }
 
   &:focus {
@@ -183,6 +210,11 @@ const SavedSpan = styled.button`
   font-size: 1rem;
   border: solid 0.188rem black;
   border-radius: 10rem;
+`;
+
+const TermWrapper = styled.div`
+  margin-right: 1rem;
+  margin-left: 1rem;
 `;
 
 const UnderlinedTab = styled.div`
@@ -343,7 +375,37 @@ function Form() {
         setValue("autoRenew", false);
       }
     },
+    switchFunctionHandler: (id) => {
+      if (id === "selfOffer") {
+        return handlers.selfOfferConnection;
+      }
+      if (id === "giftOffer") {
+        return handlers.disableAutoRenew;
+      }
+      if (id === "reducedTrail") {
+        return handlers.reducedTrail;
+      }
+      if (id === "freeTrail") {
+        return handlers.freeTrail;
+      }
+      if (id === "trailQ") {
+        return handlers.trailQ;
+      }
+    },
   };
+
+  const fullInputFieldsData = [
+    {
+      title: "title",
+      header: "Offer Title",
+      message: errors?.title?.message,
+    },
+    {
+      title: "header",
+      header: "Offer Header",
+      message: errors?.header?.message,
+    },
+  ];
 
   if (didSubmit && isDirty) {
     setDidSubmit(false);
@@ -357,8 +419,9 @@ function Form() {
             {watch("title").length > 0 ? watch("title") : "Untitled Offer"}
           </h1>
           <ButtonsWrapper>
-            {didSubmit && <SavedSpan disabled={true}>Draft Saved</SavedSpan>}
-            {!didSubmit && (
+            {didSubmit ? (
+              <SavedSpan disabled={true}>Draft Saved</SavedSpan>
+            ) : (
               <Button onClick={handleSubmit(handlers.onSubmit)}>
                 Save Draft
               </Button>
@@ -376,37 +439,27 @@ function Form() {
           <LeftSideContent>
             <JustifyCenterWrapper>
               <div>
-                <div>
-                  <ReaderOnlyLabel htmlFor="title"></ReaderOnlyLabel>
-                  <InputNoBorderFull
-                    id="title"
-                    {...register("title", {
-                      required: "This field is required",
-                    })}
-                    type="text"
-                    placeholder="Offer Title"
-                  />
-                </div>
+                {fullInputFieldsData.map((obj) => {
+                  return (
+                    <>
+                      <div>
+                        <ReaderOnlyLabel htmlFor={obj.title}></ReaderOnlyLabel>
+                        <InputNoBorderFull
+                          id={obj.title}
+                          {...register(`${obj.title}`, {
+                            required: "This field is required",
+                          })}
+                          type="text"
+                          placeholder={obj.header}
+                        />
+                      </div>
 
-                <WarningWrapper>
-                  <p>{errors?.title?.message}</p>
-                </WarningWrapper>
-
-                <div>
-                  <ReaderOnlyLabel htmlFor="header"></ReaderOnlyLabel>
-                  <InputNoBorderFull
-                    id="header"
-                    {...register("header", {
-                      required: "This field is required",
-                    })}
-                    type="text"
-                    placeholder="Offer Header"
-                  />
-                </div>
-
-                <WarningWrapper>
-                  <p>{errors?.header?.message}</p>
-                </WarningWrapper>
+                      <WarningWrapper>
+                        <p>{obj.message}</p>
+                      </WarningWrapper>
+                    </>
+                  );
+                })}
 
                 <div>
                   <ReaderOnlyLabel htmlFor="products"></ReaderOnlyLabel>
@@ -436,82 +489,44 @@ function Form() {
                 {watch("products").split(":")[1] === "bundle" && (
                   <div>
                     <p>Bundle includes the following products</p>
-                    <InputWithBorder
-                      {...register("firstBundleItemName")}
-                      type="text"
-                      placeholder="First Item"
-                      style={{ marginTop: "2rem" }}
-                    />
-                    <LabelBlock
-                      htmlFor="firstSplit"
-                      style={{ fontSize: "1rem" }}
-                    >
-                      Split
-                    </LabelBlock>
-                    <InputNoBorderFull
-                      {...register("firstBundleItemSplit")}
-                      id="firstSplit"
-                      type="number"
-                      placeholder="0"
-                    />
-                    <WarningWrapper>
-                      {selectedProductInfo.price !==
-                        +watch("firstBundleItemSplit") +
-                          +watch("secondBundleItemSplit") && (
+                    {["first", "second"].map((item) => {
+                      return (
                         <>
-                          <div>
-                            <WarningSign>!</WarningSign>
-                          </div>
+                          <InputWithBorder
+                            {...register(`${item}BundleItemName`)}
+                            type="text"
+                            placeholder={`${
+                              item.charAt(0).toUpperCase() + item.split(1)
+                            } Item`}
+                          />
+                          <label htmlFor={`${item}Split`}>Split</label>
+                          <InputNoBorderFull
+                            {...register(`${item}BundleItemSplit`)}
+                            id={`${item}Split`}
+                            type="number"
+                            placeholder="0"
+                          />
+                          <WarningWrapper>
+                            {selectedProductInfo.price !==
+                              +watch("firstBundleItemSplit") +
+                                +watch("secondBundleItemSplit") && (
+                              <>
+                                <div>
+                                  <WarningSign>!</WarningSign>
+                                </div>
 
-                          <p>
-                            The products prices in this bundle does not equal
-                            the bundle's overall price. Please make sure that
-                            the total of the products prices equals the bunle
-                            price.
-                          </p>
+                                <p>
+                                  The products prices in this bundle does not
+                                  equal the bundle's overall price. Please make
+                                  sure that the total of the products prices
+                                  equals the bunle price.
+                                </p>
+                              </>
+                            )}
+                          </WarningWrapper>
                         </>
-                      )}
-                    </WarningWrapper>
-
-                    <br />
-
-                    <InputWithBorder
-                      {...register("secondBundleItemName")}
-                      type="text"
-                      placeholder="Second Item"
-                    />
-
-                    <LabelBlock
-                      htmlFor="secondSplit"
-                      style={{ fontSize: "1rem" }}
-                    >
-                      Split
-                    </LabelBlock>
-                    <InputNoBorderFull
-                      {...register("secondBundleItemSplit")}
-                      id="secondSplit"
-                      type="number"
-                      placeholder="0"
-                    />
-
-                    <WarningWrapper>
-                      {selectedProductInfo.price !==
-                        +watch("firstBundleItemSplit") +
-                          +watch("secondBundleItemSplit") && (
-                        <>
-                          <div>
-                            <WarningSign>!</WarningSign>
-                          </div>
-
-                          <p>
-                            The products prices in this bundle does not equal
-                            the bundle's overall price. Please make sure that
-                            the total of the products prices equals the bunle
-                            price.
-                          </p>
-                        </>
-                      )}
-                    </WarningWrapper>
+                      );
+                    })}
                   </div>
                 )}
 
@@ -524,17 +539,13 @@ function Form() {
                     placeholder="Amount"
                     disabled={watch("reducedTrail") ? true : false}
                   />
-                  <div style={{ marginRight: "1rem", marginLeft: "1rem" }}>
-                    <LabelBlock
-                      htmlFor="term"
-                      style={{ color: `${FONT.color.gray}` }}
-                    >
-                      Term
-                    </LabelBlock>
+                  {/* <div style={{ marginRight: "1rem", marginLeft: "1rem" }}> */}
+                  <TermWrapper>
+                    <label htmlFor="term">Term</label>
                     <SelectElement
                       {...register("term")}
                       id="term"
-                      style={{ width: "10rem", height: "1.6rem" }}
+                      className="term"
                     >
                       <option value="" selected disabled hidden>
                         Day
@@ -546,14 +557,9 @@ function Form() {
                       <option value="month">Month</option>
                       <option value="year">year</option>
                     </SelectElement>
-                  </div>
+                  </TermWrapper>
                   <div>
-                    <LabelBlock
-                      htmlFor="duration"
-                      style={{ color: `${FONT.color.gray}` }}
-                    >
-                      Duration
-                    </LabelBlock>
+                    <label htmlFor="duration">Duration</label>
                     <InputNoBorder
                       id="duration"
                       {...register("duration")}
@@ -562,90 +568,34 @@ function Form() {
                   </div>
                 </ProductInforamtion>
 
-                <div>
+                <AutoRenewWrapper>
                   <CheckSwitch
                     id={"autoRenew"}
                     labelContent={"Auto-Renewal"}
-                    labelStyle={{ fontSize: "1.05rem" }}
                     registeration={register("autoRenew")}
-                    callbackFun={() => console.log()}
                     isDisabled={isDisabled}
                   />
-                </div>
+                </AutoRenewWrapper>
               </div>
             </JustifyCenterWrapper>
           </LeftSideContent>
 
           <RightSideContent>
-            <div style={{ marginLeft: "5rem" }}>
+            <SwitchsWrapper>
               <label htmlFor="">Offer Type:</label>
-              <div
-                style={{
-                  marginLeft: "3rem",
-                  marginTop: "2rem",
-                  marginBottom: "2rem",
-                }}
-              >
-                <CheckSwitch
-                  id={"selfOffer"}
-                  labelContent={"Self Offer"}
-                  registeration={register("selfOffer")}
-                  callbackFun={handlers.selfOfferConnection}
-                />
-
-                <br />
-
-                <CheckSwitch
-                  id={"giftOffer"}
-                  labelContent={"Gift Offer"}
-                  labelStyle={{ marginTop: "2rem" }}
-                  registeration={register("giftOffer")}
-                  callbackFun={handlers.disableAutoRenew}
-                />
-              </div>
-
-              <div style={{ marginBottom: "2rem" }}>
-                <CheckSwitch
-                  id={"promotedQ"}
-                  labelContent={"Is this offer promoted?"}
-                  registeration={register("promotedQ")}
-                />
-              </div>
-
-              <div style={{ marginBottom: "2rem" }}>
-                <CheckSwitch
-                  id={"iCareQ"}
-                  labelContent={"Is this offer an iCare default offer?"}
-                  registeration={register("iCareQ")}
-                />
-              </div>
-
-              <div style={{ marginBottom: "2rem" }}>
-                <CheckSwitch
-                  id={"trailQ"}
-                  labelContent={"Trail Offer?"}
-                  registeration={register("trailQ")}
-                  callbackFun={handlers.trailQ}
-                />
-              </div>
-
-              <div style={{ marginBottom: "2rem", marginLeft: "3rem" }}>
-                <CheckSwitch
-                  id={"freeTrail"}
-                  labelContent={"Free Trail"}
-                  registeration={register("freeTrail")}
-                  callbackFun={handlers.freeTrail}
-                />
-                <br />
-                <CheckSwitch
-                  id={"reducedTrail"}
-                  labelContent={"Reduced Price Trail"}
-                  labelStyle={{ marginTop: "2rem" }}
-                  registeration={register("reducedTrail")}
-                  callbackFun={handlers.reducedTrail}
-                />
-              </div>
-            </div>
+              {SWITCHES_LABELS.map((labelName, idx) => {
+                return (
+                  <CheckSwitch
+                    id={SWITCHES_IDS[idx]}
+                    labelContent={`${labelName}`}
+                    registeration={register(SWITCHES_IDS[idx])}
+                    callbackFun={handlers.switchFunctionHandler(
+                      SWITCHES_IDS[idx]
+                    )}
+                  />
+                );
+              })}
+            </SwitchsWrapper>
           </RightSideContent>
         </form>
       </FormWrapper>

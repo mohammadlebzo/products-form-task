@@ -5,7 +5,7 @@ const PRODUCTS_LIST = [
     name: "Single Product #1",
     price: 20,
     term: "day",
-    duration: 2
+    duration: 2,
   },
   {
     id: 1,
@@ -13,7 +13,7 @@ const PRODUCTS_LIST = [
     name: "Single Product #2",
     price: 28,
     term: "day",
-    duration: 2
+    duration: 2,
   },
   {
     id: 2,
@@ -21,7 +21,7 @@ const PRODUCTS_LIST = [
     name: "Single Product #3",
     price: 32,
     term: "day",
-    duration: 2
+    duration: 2,
   },
   {
     id: 3,
@@ -29,7 +29,7 @@ const PRODUCTS_LIST = [
     name: "Single Product #4",
     price: 45,
     term: "day",
-    duration: 2
+    duration: 2,
   },
   {
     id: 4,
@@ -37,7 +37,7 @@ const PRODUCTS_LIST = [
     name: "Single Product #5",
     price: 60,
     term: "day",
-    duration: 2
+    duration: 2,
   },
   {
     id: 5,
@@ -47,33 +47,33 @@ const PRODUCTS_LIST = [
     term: "day",
     duration: 2,
     bundleItems: [
-        {
-            name: "Bundle Item #1",
-            price: 28,
-        },
-        {
-            name: "Bundle Item #2",
-            price: 22,
-        }
-    ]
+      {
+        name: "Bundle Item #1",
+        price: 28,
+      },
+      {
+        name: "Bundle Item #2",
+        price: 22,
+      },
+    ],
   },
   {
-    id:6,
+    id: 6,
     type: "bundle",
     name: "Bundle Product #2",
     price: 20,
     term: "day",
     duration: 2,
     bundleItems: [
-        {
-            name: "Bundle Item #1",
-            price: 11,
-        },
-        {
-            name: "Bundle Item #2",
-            price: 11,
-        }
-    ]
+      {
+        name: "Bundle Item #1",
+        price: 11,
+      },
+      {
+        name: "Bundle Item #2",
+        price: 11,
+      },
+    ],
   },
   {
     id: 7,
@@ -81,7 +81,7 @@ const PRODUCTS_LIST = [
     name: "Single Product #6",
     price: 11,
     term: "day",
-    duration: 2
+    duration: 2,
   },
   {
     id: 8,
@@ -91,15 +91,15 @@ const PRODUCTS_LIST = [
     term: "day",
     duration: 2,
     bundleItems: [
-        {
-            name: "Bundle Item #1",
-            price: 33,
-        },
-        {
-            name: "Bundle Item #2",
-            price: 47,
-        }
-    ]
+      {
+        name: "Bundle Item #1",
+        price: 33,
+      },
+      {
+        name: "Bundle Item #2",
+        price: 47,
+      },
+    ],
   },
   {
     id: 9,
@@ -107,8 +107,28 @@ const PRODUCTS_LIST = [
     name: "Single Product #7",
     price: 22,
     term: "day",
-    duration: 2
+    duration: 2,
   },
 ];
 
-export { PRODUCTS_LIST };
+const SWITCHES_IDS = [
+  "selfOffer",
+  "giftOffer",
+  "promotedQ",
+  "iCareQ",
+  "trailQ",
+  "freeTrail",
+  "reducedTrail",
+];
+
+const SWITCHES_LABELS = [
+  "Self Offer",
+  "Gift Offer",
+  "Is this offer promoted?",
+  "Is this offer an iCare default offer?",
+  "Trail Offer?",
+  "Free Trail",
+  "Reduced Price Trail",
+];
+
+export { PRODUCTS_LIST, SWITCHES_IDS, SWITCHES_LABELS };
