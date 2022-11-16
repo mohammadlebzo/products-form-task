@@ -1,13 +1,15 @@
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
-import CheckSwitch from "components/CheckSwitch";
 import { useState } from "react";
 import {
   PRODUCTS_LIST,
   SWITCHES_IDS,
   SWITCHES_LABELS,
 } from "constants/mocks/MockData";
+import InputField from "./InputField";
 import { FONT, BACKGROUND, BORDER, BOX } from "constants/styles/StyleParams";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 const AutoRenewWrapper = styled.div`
   font-size: 1.05rem;
@@ -41,6 +43,18 @@ const ButtonsWrapper = styled.div`
   padding-right: 3rem;s
 `;
 
+const BundleWrapper = styled.div`
+  & label {
+    font-size: 1rem;
+  }
+`;
+
+const CharacterCount = styled.div`
+  float: right;
+  font-size: 1rem;
+  color: ${FONT.color.gray};
+`;
+
 const FormWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -64,41 +78,6 @@ const HerderContentWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   border-radius: 3rem;
-`;
-
-const InputWithBorder = styled.input`
-  width: 100%;
-  border: 0;
-  height: 1rem;
-  padding: 1rem;
-  font-size: 1.2rem;
-  margin-bottom: 3rem;
-  background-color: ${BACKGROUND.color.lightGray};
-  box-shadow: 0 0.313rem 0.313rem 0 rgba(0, 0, 0, 0.3);
-`;
-
-const InputNoBorder = styled.input`
-  outline: 0;
-
-  border: 0;
-  border-bottom-width: 0.063rem;
-  border-bottom-color: ${BORDER.color.gray};
-  border-bottom-style: solid;
-
-  margin-bottom: 5rem;
-  font-size: 1.2rem;
-
-  &:focus {
-    box-shadow: ${BOX.focusShadow};
-    border-radius: 0.5rem;
-    padding: 0.5rem;
-  }
-`;
-
-const InputNoBorderFull = styled(InputNoBorder)`
-  width: 100%;
-  margin-right: 1.25rem;
-  margin-bottom: 0;
 `;
 
 const JustifyCenterWrapper = styled.div`
@@ -151,14 +130,14 @@ const RightSideContent = styled.div`
 
 const ReaderOnlyLabel = styled.label`
     border: 0;
-    clip: rect(1px 1px 1px 1px);
-    clip; rect(1px, 1px, 1px, 1px);
-    height: 1px;
-    margin: -1px;
+    clip: rect(0.063rem 0.063rem 0.063rem 0.063rem);
+    clip; rect(0.063rem, 0.063rem, 0.063rem, 0.063rem);
+    height: 0.063rem;
+    margin: -0.063rem;
     overflow: hidden;
     padding: 0;
     position: absolute;
-    width: 1px;
+    width: 0.063rem;
 `;
 
 const SwitchsWrapper = styled.div`
@@ -185,7 +164,6 @@ const SelectElement = styled.select`
   &.products {
     width: 100%;
     padding-right: 1.25rem;
-    margin-bottom: 5rem;
     height: 3rem;
     font-size: 1.3rem;
   }
@@ -251,6 +229,18 @@ function Form() {
   const [selectedProductInfo, setSelectedProductInfo] = useState({});
   const [isDisabled, setIsDisabled] = useState(false);
   const [didSubmit, setDidSubmit] = useState(false);
+
+  const schema = yup
+    .object()
+    .shape({
+      title: yup.string().required(),
+      header: yup.string().required(),
+      products: yup.string().required(),
+      amount: yup.number(),
+      duration: yup.number(),
+    })
+    .required();
+
   const {
     formState: { isDirty },
     reset,
@@ -281,6 +271,7 @@ function Form() {
       firstBundleItemSplit: 0,
       secondBundleItemSplit: 0,
     },
+    resolver: yupResolver(schema),
   });
 
   const handlers = {
@@ -439,19 +430,24 @@ function Form() {
           <LeftSideContent>
             <JustifyCenterWrapper>
               <div>
-                {fullInputFieldsData.map((obj) => {
+                {fullInputFieldsData.map((obj, idx) => {
                   return (
                     <>
-                      <div>
-                        <ReaderOnlyLabel htmlFor={obj.title}></ReaderOnlyLabel>
-                        <InputNoBorderFull
-                          id={obj.title}
-                          {...register(`${obj.title}`, {
-                            required: "This field is required",
-                          })}
+                      <div key={idx}>
+                        <InputField
+                          id={`${obj.title}`}
+                          registration={register(`${obj.title}`)}
                           type="text"
+                          styleType="noBorderFull"
                           placeholder={obj.header}
+                          labelType="read"
+                          labelText={`Input ${obj.title}`}
                         />
+                        {obj.title === "header" && (
+                          <CharacterCount>{`${
+                            watch("header").length
+                          }/24`}</CharacterCount>
+                        )}
                       </div>
 
                       <WarningWrapper>
@@ -484,28 +480,37 @@ function Form() {
                       );
                     })}
                   </SelectElement>
+                  <WarningWrapper>
+                    <p>{errors?.products?.message}</p>
+                  </WarningWrapper>
                 </div>
 
                 {watch("products").split(":")[1] === "bundle" && (
-                  <div>
+                  <BundleWrapper>
                     <p>Bundle includes the following products</p>
-                    {["first", "second"].map((item) => {
+                    {["first", "second"].map((item, idx) => {
                       return (
                         <>
-                          <InputWithBorder
-                            {...register(`${item}BundleItemName`)}
+                          <InputField
+                            id={`${item}BundleName`}
+                            registration={register(`${item}BundleItemName`)}
                             type="text"
-                            placeholder={`${
-                              item.charAt(0).toUpperCase() + item.split(1)
-                            } Item`}
+                            styleType="withBorder"
+                            labelType="read"
+                            labelText={`Input ${item}BundleName`}
                           />
-                          <label htmlFor={`${item}Split`}>Split</label>
-                          <InputNoBorderFull
-                            {...register(`${item}BundleItemSplit`)}
+
+                          <InputField
                             id={`${item}Split`}
+                            registration={register(`${item}BundleItemSplit`)}
                             type="number"
-                            placeholder="0"
+                            styleType="noBorderFull"
+                            placeholder={`${
+                              item.charAt(0).toUpperCase() + item.slice(1)
+                            } Item`}
+                            labelText="Split"
                           />
+
                           <WarningWrapper>
                             {selectedProductInfo.price !==
                               +watch("firstBundleItemSplit") +
@@ -527,19 +532,21 @@ function Form() {
                         </>
                       );
                     })}
-                  </div>
+                  </BundleWrapper>
                 )}
 
                 <ProductInforamtion>
-                  <ReaderOnlyLabel htmlFor="amount"></ReaderOnlyLabel>
-                  <InputNoBorder
+                  <InputField
                     id="amount"
-                    {...register("amount")}
+                    registration={register("amount")}
                     type="number"
+                    styleType="noBorder"
                     placeholder="Amount"
-                    disabled={watch("reducedTrail") ? true : false}
+                    labelType="read"
+                    labelText="Input amount"
+                    disabled={watch("freeTrail") ? true : false}
                   />
-                  {/* <div style={{ marginRight: "1rem", marginLeft: "1rem" }}> */}
+
                   <TermWrapper>
                     <label htmlFor="term">Term</label>
                     <SelectElement
@@ -559,21 +566,23 @@ function Form() {
                     </SelectElement>
                   </TermWrapper>
                   <div>
-                    <label htmlFor="duration">Duration</label>
-                    <InputNoBorder
+                    <InputField
                       id="duration"
-                      {...register("duration")}
+                      registration={register("duration")}
                       type="number"
+                      styleType="noBorder"
+                      labelText="Duration"
                     />
                   </div>
                 </ProductInforamtion>
 
                 <AutoRenewWrapper>
-                  <CheckSwitch
-                    id={"autoRenew"}
-                    labelContent={"Auto-Renewal"}
-                    registeration={register("autoRenew")}
-                    isDisabled={isDisabled}
+                  <InputField
+                    id="autoRenew"
+                    registration={register("autoRenew")}
+                    type="checkbox"
+                    labelText="Auto-Renewal"
+                    disabled={isDisabled}
                   />
                 </AutoRenewWrapper>
               </div>
@@ -585,10 +594,11 @@ function Form() {
               <label htmlFor="">Offer Type:</label>
               {SWITCHES_LABELS.map((labelName, idx) => {
                 return (
-                  <CheckSwitch
+                  <InputField
                     id={SWITCHES_IDS[idx]}
-                    labelContent={`${labelName}`}
-                    registeration={register(SWITCHES_IDS[idx])}
+                    registration={register(SWITCHES_IDS[idx])}
+                    type="checkbox"
+                    labelText={`${labelName}`}
                     callbackFun={handlers.switchFunctionHandler(
                       SWITCHES_IDS[idx]
                     )}
