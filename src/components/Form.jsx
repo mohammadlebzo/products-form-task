@@ -7,7 +7,13 @@ import {
   SWITCHES_LABELS,
 } from "constants/mocks/MockData";
 import InputField from "./InputField";
-import { FONT, BACKGROUND, BORDER, BOX } from "constants/styles/StyleParams";
+import {
+  FONT,
+  BACKGROUND,
+  BORDER,
+  BOX,
+  MEDIA,
+} from "constants/styles/StyleParams";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
@@ -40,7 +46,12 @@ const ButtonsWrapper = styled.div`
   justify-content: center;
   height: 4rem;
   padding-top: 1rem;
-  padding-right: 3rem;s
+  padding-right: 3rem;
+
+  @media screen and (${MEDIA.mobile}) {
+    padding-top: 0;
+    padding-right: 0;
+  }
 `;
 
 const BundleWrapper = styled.div`
@@ -71,6 +82,14 @@ const FormWrapper = styled.div`
     & label {
       display: block;
     }
+
+    @media screen and (${MEDIA.mobile}) {
+      display: block;
+    }
+  }
+
+  @media screen and (${MEDIA.mobile}) {
+    margin: 0;
   }
 `;
 
@@ -78,6 +97,10 @@ const HerderContentWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   border-radius: 3rem;
+
+  @media screen and (${MEDIA.mobile}) {
+    display: block;
+  }
 `;
 
 const JustifyCenterWrapper = styled.div`
@@ -91,6 +114,12 @@ const LeftSideContent = styled.div`
   float: left;
   margin: 2rem;
   margin-left: 6rem;
+
+  @media screen and (${MEDIA.mobile}) {
+    float: none;
+    width: 100%
+    margin-left: 0;
+  }
 `;
 
 const ProductInforamtion = styled.div`
@@ -100,6 +129,15 @@ const ProductInforamtion = styled.div`
 
   & select {
     font-size: 1.2rem;
+  }
+
+  @media screen and (${MEDIA.mobile}) {
+    justify-content: start;
+    display: block;
+
+    & input:first-of-type {
+      margin-bottom: 3rem;
+    }
   }
 `;
 
@@ -119,6 +157,17 @@ const PageHeader = styled.div`
     margin-left: 1.5rem;
     margin-bottom: 3rem;
   }
+
+  @media screen and (${MEDIA.mobile}) {
+    margin-left: 2rem;
+    margin-right: 2rem;
+
+    & h1 {
+      text-align: center;
+      margin-left: 0;
+      overflow: warp;
+    }
+  }
 `;
 
 const RightSideContent = styled.div`
@@ -126,6 +175,13 @@ const RightSideContent = styled.div`
   float: right;
   margin: 2rem;
   font-size: 1.2rem;
+
+  @media screen and (${MEDIA.mobile}) {
+    float: none;
+    width: 100%
+    margin: 0;
+    margin-left: 4rem;
+  }
 `;
 
 const ReaderOnlyLabel = styled.label`
@@ -152,6 +208,10 @@ const SwitchsWrapper = styled.div`
   }
 
   margin-left: 5rem;
+
+  @media screen and (${MEDIA.mobile}) {
+    margin-left: 2rem;
+  }
 `;
 
 const SelectElement = styled.select`
@@ -171,6 +231,10 @@ const SelectElement = styled.select`
   &.term {
     width: 10rem;
     height: 1.6rem;
+
+    @media screen and (${MEDIA.mobile}) {
+      width: 100%;
+    }
   }
 
   &:focus {
@@ -193,6 +257,12 @@ const SavedSpan = styled.button`
 const TermWrapper = styled.div`
   margin-right: 1rem;
   margin-left: 1rem;
+
+  @media screen and (${MEDIA.mobile}) {
+    margin-right: 0;
+    margin-left: 0;
+    margin-bottom: 3rem;
+  }
 `;
 
 const UnderlinedTab = styled.div`
@@ -207,6 +277,10 @@ const UnderlinedTab = styled.div`
   & p {
     text-align: center;
     font-size: 1.2rem;
+  }
+
+  @media screen and (${MEDIA.mobile}) {
+    width: 100%;
   }
 `;
 

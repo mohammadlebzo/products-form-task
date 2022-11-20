@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import PropTypes from "prop-types";
-import { BACKGROUND, BOX, BORDER } from "constants/styles/StyleParams";
+import { BACKGROUND, BOX, BORDER, MEDIA } from "constants/styles/StyleParams";
 
 const InputWithBorder = styled.input`
   width: 100%;
@@ -28,6 +28,10 @@ const InputNoBorder = styled.input`
     box-shadow: ${BOX.focusShadow};
     border-radius: 0.5rem;
     padding: 0.5rem;
+  }
+
+  @media screen and (${MEDIA.mobile}) {
+    width: 100%
   }
 `;
 
