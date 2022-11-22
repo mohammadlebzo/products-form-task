@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import {
   PRODUCTS_LIST,
   SWITCHES_IDS,
@@ -284,14 +284,6 @@ const UnderlinedTab = styled.div`
   }
 `;
 
-const WarningSign = styled.p`
-  border: 0.063rem solid red;
-  border-radius: 1.875rem;
-  color: ${FONT.color.red};
-  width: 1.25rem;
-  text-align: center;
-`;
-
 const WarningWrapper = styled.div`
   display: flex;
   font-size: 1rem;
@@ -299,21 +291,34 @@ const WarningWrapper = styled.div`
   margin-bottom: 3rem;
 `;
 
+const schema = yup
+  .object()
+  .shape({
+    title: yup.string().required(),
+    header: yup.string().max(24).required(),
+    products: yup.string().required(),
+    amount: yup
+      .number()
+      .when(
+        ["firstBundleItemSplit", "secondBundleItemSplit"],
+        (firstBundleItemSplit, secondBundleItemSplit, schema) => {
+          return schema.test({
+            test: (amount) =>
+              +firstBundleItemSplit + +secondBundleItemSplit === +amount,
+            message:
+              "The products prices in this bundle does not equal the bundle's overall price. Please make sure that the total of the products prices equals the bunle price.",
+          });
+        }
+      ),
+  })
+  .required();
+
 function Form() {
-  const [selectedProductInfo, setSelectedProductInfo] = useState({});
   const [isDisabled, setIsDisabled] = useState(false);
   const [didSubmit, setDidSubmit] = useState(false);
+  const [offerIsOn, setOfferIsOn] = useState(false);
 
-  const schema = yup
-    .object()
-    .shape({
-      title: yup.string().required(),
-      header: yup.string().required(),
-      products: yup.string().required(),
-      amount: yup.number(),
-      duration: yup.number(),
-    })
-    .required();
+  const [preLockAmount, setPreLockAmount] = useState(0);
 
   const {
     formState: { isDirty },
@@ -328,9 +333,9 @@ function Form() {
     defaultValues: {
       title: "",
       header: "",
-      amount: 0,
-      duration: 0,
-      products: "",
+      amount: PRODUCTS_LIST[0].price,
+      duration: PRODUCTS_LIST[0].duration,
+      products: "0:single",
       term: "day",
       autoRenew: false,
       selfOffer: false,
@@ -355,26 +360,27 @@ function Form() {
       setDidSubmit(true);
     },
     selfOfferConnection: (e) => {
-      setValue("selfOffer", !getValues("selfOffer"));
+      setValue("autoRenew", !getValues("autoRenew"));
 
       const autoRenew = getValues("autoRenew");
       const selfOffer = getValues("selfOffer");
-      const giftOffer = getValues("giftOffer");
 
-      if (!autoRenew && selfOffer) {
-        setValue("autoRenew", true);
-      }
       if (autoRenew && !selfOffer) {
-        setValue("autoRenew", false);
+        setValue("selfOffer", true);
       }
-      if (giftOffer) {
-        setValue("autoRenew", false);
+      if (!autoRenew && selfOffer) {
+        setValue("selfOffer", false);
       }
     },
     disableAutoRenew: (e) => {
+      setValue("giftOffer", !getValues("giftOffer"));
+      setValue("trailQ", false);
+      setValue("freeTrail", false);
+      setValue("reducedTrail", false);
+      setOfferIsOn(false);
       const giftOffer = getValues("giftOffer");
 
-      if (!giftOffer) {
+      if (giftOffer) {
         setValue("autoRenew", false);
         setIsDisabled(true);
       } else {
@@ -385,8 +391,7 @@ function Form() {
       setValue("products", e.target.value);
       PRODUCTS_LIST.forEach((product) => {
         if (product.id === +e.target.value.split(":")[0]) {
-          setSelectedProductInfo(product);
-          setValue("amount", product.price);
+          setValue("amount", getValues("freeTrail") ? 0 : product.price);
           setValue("duration", product.duration);
           if (product.bundleItems) {
             setValue("firstBundleItemName", product.bundleItems[0].name);
@@ -398,36 +403,39 @@ function Form() {
       });
     },
     reducedTrail: () => {
-      if (!getValues("giftOffer")) {
-        setValue("autoRenew", true);
-      }
-      setValue("trailQ", true);
       setValue("reducedTrail", !getValues("reducedTrail"));
       if (watch("freeTrail")) {
         setValue("freeTrail", false);
+        setValue("amount", getValues("products") ? preLockAmount : 0);
       }
     },
     freeTrail: () => {
-      if (!getValues("giftOffer")) {
-        setValue("autoRenew", true);
+      if (getValues("amount") !== 0) {
+        setPreLockAmount(getValues("amount"));
       }
-      setValue("trailQ", true);
       setValue("freeTrail", !getValues("freeTrail"));
+
       if (watch("reducedTrail")) {
         setValue("reducedTrail", false);
+      }
+      if (getValues("freeTrail")) {
+        setValue("amount", 0);
+      } else {
+        setValue("amount", getValues("products") ? preLockAmount : 0);
       }
     },
     trailQ: () => {
       setValue("trailQ", !getValues("trailQ"));
+      setValue("giftOffer", false);
+      setOfferIsOn(!offerIsOn);
+      setIsDisabled(false);
 
       const trailQ = getValues("trailQ");
       const autoRenew = getValues("autoRenew");
       const giftOffer = getValues("giftOffer");
 
-      if (watch("reducedTrail")) {
+      if (!watch("trailQ")) {
         setValue("reducedTrail", false);
-      }
-      if (watch("freeTrail")) {
         setValue("freeTrail", false);
       }
       if (!autoRenew && trailQ) {
@@ -436,14 +444,8 @@ function Form() {
       if (autoRenew && !trailQ) {
         setValue("autoRenew", false);
       }
-      if (giftOffer) {
-        setValue("autoRenew", false);
-      }
     },
     switchFunctionHandler: (id) => {
-      if (id === "selfOffer") {
-        return handlers.selfOfferConnection;
-      }
       if (id === "giftOffer") {
         return handlers.disableAutoRenew;
       }
@@ -506,8 +508,8 @@ function Form() {
               <div>
                 {fullInputFieldsData.map((obj, idx) => {
                   return (
-                    <>
-                      <div key={idx}>
+                    <Fragment key={idx}>
+                      <div>
                         <InputField
                           id={`${obj.title}`}
                           registration={register(`${obj.title}`)}
@@ -527,7 +529,7 @@ function Form() {
                       <WarningWrapper>
                         <p>{obj.message}</p>
                       </WarningWrapper>
-                    </>
+                    </Fragment>
                   );
                 })}
 
@@ -539,10 +541,6 @@ function Form() {
                     className="products"
                     onChange={handlers.productInfo}
                   >
-                    <option value="" selected disabled hidden>
-                      Products
-                    </option>
-
                     {PRODUCTS_LIST.map((product) => {
                       return (
                         <option
@@ -564,7 +562,7 @@ function Form() {
                     <p>Bundle includes the following products</p>
                     {["first", "second"].map((item, idx) => {
                       return (
-                        <>
+                        <Fragment key={idx}>
                           <InputField
                             id={`${item}BundleName`}
                             registration={register(`${item}BundleItemName`)}
@@ -586,24 +584,9 @@ function Form() {
                           />
 
                           <WarningWrapper>
-                            {selectedProductInfo.price !==
-                              +watch("firstBundleItemSplit") +
-                                +watch("secondBundleItemSplit") && (
-                              <>
-                                <div>
-                                  <WarningSign>!</WarningSign>
-                                </div>
-
-                                <p>
-                                  The products prices in this bundle does not
-                                  equal the bundle's overall price. Please make
-                                  sure that the total of the products prices
-                                  equals the bunle price.
-                                </p>
-                              </>
-                            )}
+                            <p>{errors?.amount?.message}</p>
                           </WarningWrapper>
-                        </>
+                        </Fragment>
                       );
                     })}
                   </BundleWrapper>
@@ -628,12 +611,7 @@ function Form() {
                       id="term"
                       className="term"
                     >
-                      <option value="" selected disabled hidden>
-                        Day
-                      </option>
-                      <option value="day" selected>
-                        Day
-                      </option>
+                      <option value="day">Day</option>
                       <option value="week">Week</option>
                       <option value="month">Month</option>
                       <option value="year">year</option>
@@ -656,6 +634,7 @@ function Form() {
                     registration={register("autoRenew")}
                     type="checkbox"
                     labelText="Auto-Renewal"
+                    callbackFun={handlers.selfOfferConnection}
                     disabled={isDisabled}
                   />
                 </AutoRenewWrapper>
@@ -668,15 +647,31 @@ function Form() {
               <label htmlFor="">Offer Type:</label>
               {SWITCHES_LABELS.map((labelName, idx) => {
                 return (
-                  <InputField
-                    id={SWITCHES_IDS[idx]}
-                    registration={register(SWITCHES_IDS[idx])}
-                    type="checkbox"
-                    labelText={`${labelName}`}
-                    callbackFun={handlers.switchFunctionHandler(
-                      SWITCHES_IDS[idx]
+                  <Fragment key={idx}>
+                    {!offerIsOn ? (
+                      SWITCHES_LABELS.length - 2 > idx && (
+                        <InputField
+                          id={SWITCHES_IDS[idx]}
+                          registration={register(SWITCHES_IDS[idx])}
+                          type="checkbox"
+                          labelText={`${labelName}`}
+                          callbackFun={handlers.switchFunctionHandler(
+                            SWITCHES_IDS[idx]
+                          )}
+                        />
+                      )
+                    ) : (
+                      <InputField
+                        id={SWITCHES_IDS[idx]}
+                        registration={register(SWITCHES_IDS[idx])}
+                        type="checkbox"
+                        labelText={`${labelName}`}
+                        callbackFun={handlers.switchFunctionHandler(
+                          SWITCHES_IDS[idx]
+                        )}
+                      />
                     )}
-                  />
+                  </Fragment>
                 );
               })}
             </SwitchsWrapper>

@@ -178,7 +178,7 @@ function InputField({
 
 InputField.propTypes = {
   id: PropTypes.string,
-  registration: PropTypes.func,
+  registration: PropTypes.object,
   type: PropTypes.string,
   styleType: PropTypes.string,
   placeholder: PropTypes.string,
