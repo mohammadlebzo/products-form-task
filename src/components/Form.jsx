@@ -432,7 +432,6 @@ function Form() {
 
       const trailQ = getValues("trailQ");
       const autoRenew = getValues("autoRenew");
-      const giftOffer = getValues("giftOffer");
 
       if (!watch("trailQ")) {
         setValue("reducedTrail", false);
