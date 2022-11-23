@@ -30,7 +30,7 @@ const BORDER = {
 };
 
 const BOX = {
-  focusShadow: "0.1rem 0.1rem 1rem black",
+  focusShadow: "0.1rem 0.1rem 0.4rem black",
 };
 
 const MEDIA = {

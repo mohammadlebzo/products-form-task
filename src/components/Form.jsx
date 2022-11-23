@@ -17,6 +17,7 @@ import {
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
+// Styled Components
 const AutoRenewWrapper = styled.div`
   font-size: 1.05rem;
 `;
@@ -291,6 +292,7 @@ const WarningWrapper = styled.div`
   margin-bottom: 3rem;
 `;
 
+// Validation Schema
 const schema = yup
   .object()
   .shape({
@@ -300,11 +302,17 @@ const schema = yup
     amount: yup
       .number()
       .when(
-        ["firstBundleItemSplit", "secondBundleItemSplit"],
-        (firstBundleItemSplit, secondBundleItemSplit, schema) => {
+        ["firstBundleItemSplit", "secondBundleItemSplit", "products"],
+        (firstBundleItemSplit, secondBundleItemSplit, products, schema) => {
           return schema.test({
-            test: (amount) =>
-              +firstBundleItemSplit + +secondBundleItemSplit === +amount,
+            test: (amount) => {
+              if (products.split(":"[1]) === "bundle") {
+                return +firstBundleItemSplit + +secondBundleItemSplit === +amount;
+              }
+              else {
+                return +amount
+              }
+            },
             message:
               "The products prices in this bundle does not equal the bundle's overall price. Please make sure that the total of the products prices equals the bunle price.",
           });
@@ -313,6 +321,7 @@ const schema = yup
   })
   .required();
 
+// Component
 function Form() {
   const [isDisabled, setIsDisabled] = useState(false);
   const [didSubmit, setDidSubmit] = useState(false);
@@ -355,7 +364,7 @@ function Form() {
 
   const handlers = {
     onSubmit: (data) => {
-      console.log(data);
+      console.log(yup.object().validate(data));
       reset(data);
       setDidSubmit(true);
     },
