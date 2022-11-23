@@ -301,16 +301,18 @@ const schema = yup
     products: yup.string().required(),
     amount: yup
       .number()
+      .positive()
       .when(
         ["firstBundleItemSplit", "secondBundleItemSplit", "products"],
         (firstBundleItemSplit, secondBundleItemSplit, products, schema) => {
           return schema.test({
             test: (amount) => {
-              if (products.split(":"[1]) === "bundle") {
-                return +firstBundleItemSplit + +secondBundleItemSplit === +amount;
-              }
-              else {
-                return +amount
+              if (products.split(":")[1] === "bundle") {
+                return (
+                  +firstBundleItemSplit + +secondBundleItemSplit === +amount
+                );
+              } else {
+                return +amount;
               }
             },
             message:
@@ -318,6 +320,7 @@ const schema = yup
           });
         }
       ),
+    duration: yup.number().positive(),
   })
   .required();
 
